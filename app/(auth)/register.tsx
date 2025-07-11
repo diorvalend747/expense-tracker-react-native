@@ -4,6 +4,7 @@ import Input from '@/components/Input';
 import ScreenWrapper from '@/components/ScreenWrapper';
 import Typo from '@/components/Typo';
 import { colors, spacingX, spacingY } from '@/constants/theme';
+import { useAuth } from '@/context/authContext';
 import { verticalScale } from '@/utils/styling';
 import { useRouter } from 'expo-router';
 import * as Icons from 'phosphor-react-native';
@@ -18,13 +19,25 @@ const Register = () => {
 
   const router = useRouter();
 
+  const { register: registerUser } = useAuth();
+
   const handleSubmit = async () => {
-    if (!emailRef.current || !passwordRef.current) {
-      Alert.alert('Login', 'Please fill all the fields');
+    if (!usernameRef || !emailRef.current || !passwordRef.current) {
+      Alert.alert('Register', 'Please fill all the fields');
       return;
     }
 
-    console.log('good to go');
+    setIsLoading(true);
+    const response = await registerUser(
+      emailRef.current,
+      passwordRef.current,
+      usernameRef.current
+    );
+    setIsLoading(false);
+    console.log('register result', response);
+    if (!response?.success) {
+      Alert.alert('Sign Up', response?.message);
+    }
   };
 
   return (

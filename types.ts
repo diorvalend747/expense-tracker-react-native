@@ -1,19 +1,14 @@
-import { Href } from "expo-router";
-import { Firestore, Timestamp } from "firebase/firestore";
-import { Icon } from "phosphor-react-native";
-import React, { ReactNode } from "react";
+import { Timestamp } from 'firebase/firestore';
+import { Icon } from 'phosphor-react-native';
+import React, { ReactNode } from 'react';
 import {
-  ActivityIndicator,
-  ActivityIndicatorProps,
-  ImageStyle,
-  PressableProps,
   TextInput,
   TextInputProps,
   TextProps,
   TextStyle,
   TouchableOpacityProps,
   ViewStyle,
-} from "react-native";
+} from 'react-native';
 
 export type ScreenWrapperProps = {
   style?: ViewStyle;
@@ -34,7 +29,7 @@ export type accountOptionType = {
 export type TypoProps = {
   size?: number;
   color?: string;
-  fontWeight?: TextStyle["fontWeight"];
+  fontWeight?: TextStyle['fontWeight'];
   children: any | null;
   style?: TextStyle;
   textProps?: TextProps;
@@ -132,7 +127,7 @@ export type UserType = {
   uid?: string;
   email?: string | null;
   name: string | null;
-  image?: any;
+  image?: any | null;
 } | null;
 
 export type UserDataType = {
@@ -142,16 +137,16 @@ export type UserDataType = {
 
 export type AuthContextType = {
   user: UserType;
-  setUser: Function;
+  setUser: React.Dispatch<React.SetStateAction<UserType>>;
   login: (
     email: string,
     password: string
-  ) => Promise<{ success: boolean; msg?: string }>;
+  ) => Promise<{ success: boolean; message?: string }>;
   register: (
     email: string,
     password: string,
     name: string
-  ) => Promise<{ success: boolean; msg?: string }>;
+  ) => Promise<{ success: boolean; message?: string }>;
   updateUserData: (userId: string) => Promise<void>;
 };
 
