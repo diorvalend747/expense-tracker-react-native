@@ -12,7 +12,7 @@ import { UserDataType } from '@/types';
 import { scale, verticalScale } from '@/utils/styling';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
-import { useRouter } from 'expo-router';
+import { router } from 'expo-router';
 import * as Icons from 'phosphor-react-native';
 import React, { useEffect, useState } from 'react';
 import {
@@ -25,7 +25,6 @@ import {
 
 const ProfileModal = () => {
   const { user, updateUserData } = useAuth();
-  const router = useRouter();
 
   const [userData, setUserData] = useState<UserDataType>({
     name: '',
