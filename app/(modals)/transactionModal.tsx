@@ -9,6 +9,7 @@ import { expenseCategories, transactionTypes } from '@/constants/data';
 import { colors, radius, spacingX, spacingY } from '@/constants/theme';
 import { useAuth } from '@/context/authContext';
 import useFetchData from '@/hooks/useFetchData';
+import { createOrUpdateTransaction } from '@/services/transactionService';
 import { deleteWallet } from '@/services/walletService';
 import { TransactionType, WalletType } from '@/types';
 import { scale, verticalScale } from '@/utils/styling';
@@ -36,6 +37,7 @@ const TransactionModal = () => {
     description: '',
     date: new Date(),
     walletId: '',
+    category: '',
   });
   const [loading, setLoading] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -87,7 +89,15 @@ const TransactionModal = () => {
       uid: user?.uid,
     };
 
-    console.log('Transaction Data:', data);
+    setLoading(true);
+    const response = await createOrUpdateTransaction(data);
+
+    setLoading(false);
+    if (response?.success) {
+      router.back();
+    } else {
+      Alert.alert('Transaction', response?.msg || 'Failed to save transaction');
+    }
   };
 
   const onDelete = async () => {
