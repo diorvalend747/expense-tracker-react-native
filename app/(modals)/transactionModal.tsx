@@ -17,7 +17,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { router, useLocalSearchParams } from 'expo-router';
 import { orderBy, where } from 'firebase/firestore';
 import * as Icons from 'phosphor-react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Alert,
   Platform,
@@ -51,17 +51,33 @@ const TransactionModal = () => {
     orderBy('created', 'desc'),
   ]);
 
-  const oldTransaction: { name: string; image: string; id: string } =
-    useLocalSearchParams();
+  type paramType = {
+    id: string;
+    type: string;
+    image?: any;
+    amount: string;
+    description?: string;
+    category?: string;
+    date: string;
+    walletId: string;
+    uid?: string;
+  };
 
-  // useEffect(() => {
-  //   if (oldTransaction?.id) {
-  //     setTransaction({
-  //       name: oldTransaction?.name,
-  //       image: oldTransaction?.image,
-  //     });
-  //   }
-  // }, []);
+  const oldTransaction: paramType = useLocalSearchParams();
+
+  useEffect(() => {
+    if (oldTransaction?.id) {
+      setTransaction({
+        type: oldTransaction?.type,
+        image: oldTransaction?.image,
+        amount: Number(oldTransaction?.amount),
+        description: oldTransaction?.description || '',
+        category: oldTransaction?.category || '',
+        date: new Date(oldTransaction?.date),
+        walletId: oldTransaction?.walletId,
+      });
+    }
+  }, []);
 
   const handleChangeFormTransaction = (name: string, value: any) => {
     setTransaction((prev) => ({
@@ -85,9 +101,13 @@ const TransactionModal = () => {
       category,
       date,
       walletId,
-      image,
+      image: image || null,
       uid: user?.uid,
     };
+
+    if (oldTransaction?.id) {
+      data.id = oldTransaction?.id;
+    }
 
     setLoading(true);
     const response = await createOrUpdateTransaction(data);
