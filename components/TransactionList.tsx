@@ -48,6 +48,7 @@ const TransactionList = ({
       <View style={styles.list}>
         <FlashList
           data={data}
+          estimatedItemSize={100}
           renderItem={({ item, index }) => (
             <TransactionItem
               item={item}

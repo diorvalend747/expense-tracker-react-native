@@ -1,6 +1,13 @@
 import { firestore } from '@/config/firebase';
 import { ResponseType, TransactionType, WalletType } from '@/types';
-import { collection, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+} from 'firebase/firestore';
 import { uploadFileToCloudinary } from './imageService';
 import { createOrUpdateWallet } from './walletService';
 
@@ -215,6 +222,58 @@ const revertAndUpdateWallets = async (
     return { success: true };
   } catch (error: any) {
     console.log('error creating or updating transaction: ', error);
+    return { success: false, msg: error.message };
+  }
+};
+
+export const deleteTransaction = async (
+  transactionId: string,
+  walletId: string
+) => {
+  try {
+    const transactionRef = doc(firestore, 'transactions', transactionId);
+    const transactionDoc = await getDoc(transactionRef);
+
+    if (!transactionDoc.exists()) {
+      return { success: false, msg: 'Transaction not found' };
+    }
+
+    const transactionData = transactionDoc.data() as TransactionType;
+
+    const transactionType = transactionData.type;
+    const transactionAmount = transactionData.amount;
+
+    // Fetch the wallet to revert the transaction
+    const walletDoc = await getDoc(doc(firestore, 'wallets', walletId));
+    const walletData = walletDoc.data() as WalletType;
+
+    // Check fields to be updated base on transaction type
+    const updateType =
+      transactionType === 'income' ? 'totalIncome' : 'totalExpenses';
+
+    const newWalletAmount =
+      walletData?.amount! -
+      (transactionType === 'income' ? transactionAmount : -transactionAmount);
+
+    const newIncomeExpenseAmount =
+      walletData?.[updateType]! - transactionAmount;
+
+    // If its expense and the wallet amount can go below zero
+    if (transactionType === 'expense' && newWalletAmount < 0) {
+      return { success: false, msg: 'Cannot delete this transaction' };
+    }
+
+    await createOrUpdateWallet({
+      id: walletId,
+      amount: newWalletAmount,
+      [updateType]: newIncomeExpenseAmount,
+    });
+
+    await deleteDoc(transactionRef);
+
+    return { success: true, msg: 'Transaction deleted successfully' };
+  } catch (error: any) {
+    console.log('error deleting transaction: ', error);
     return { success: false, msg: error.message };
   }
 };

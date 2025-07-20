@@ -9,8 +9,10 @@ import { expenseCategories, transactionTypes } from '@/constants/data';
 import { colors, radius, spacingX, spacingY } from '@/constants/theme';
 import { useAuth } from '@/context/authContext';
 import useFetchData from '@/hooks/useFetchData';
-import { createOrUpdateTransaction } from '@/services/transactionService';
-import { deleteWallet } from '@/services/walletService';
+import {
+  createOrUpdateTransaction,
+  deleteTransaction,
+} from '@/services/transactionService';
 import { TransactionType, WalletType } from '@/types';
 import { scale, verticalScale } from '@/utils/styling';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -124,19 +126,22 @@ const TransactionModal = () => {
     if (!oldTransaction?.id) return;
 
     setLoading(true);
-    const response = await deleteWallet(oldTransaction?.id);
+    const response = await deleteTransaction(
+      oldTransaction?.id,
+      oldTransaction?.walletId
+    );
     setLoading(false);
     if (response?.success) {
       router.back();
     } else {
-      Alert.alert('Wallet', response?.msg);
+      Alert.alert('Transaction', response?.msg);
     }
   };
 
   const showDeleteAlert = () => {
     Alert.alert(
       'Confirm',
-      'Are you sure you want to do this? \nThis action will remove all the transactions related to this wallet',
+      'Are you sure you want to do delete this transaction?',
       [
         {
           text: 'Cancel',
